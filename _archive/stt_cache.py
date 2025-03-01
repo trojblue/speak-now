@@ -98,7 +98,7 @@ class EnhancedNotification:
         self.running = False
         self.thread = threading.Thread(target=self._run_gui, daemon=True)
         self.thread.start()
-        time.sleep(0.1)
+        time.sleep(0.05)
 
     def _run_gui(self):
         try:
@@ -407,7 +407,7 @@ class TextCache:
 
                 # Actually paste
                 pyperclip.copy(text_to_paste)
-                time.sleep(0.1)
+                time.sleep(0.05)
                 pyautogui.keyDown("ctrl")
                 pyautogui.press("v")
                 pyautogui.keyUp("ctrl")
@@ -416,7 +416,7 @@ class TextCache:
                 self.notification.update_status("Text pasted! Cache cleared.")
                 print(f"[TextCache] Pasted raw text: '{text_to_paste}'")
 
-                time.sleep(0.1)
+                time.sleep(0.05)
                 pyperclip.copy(original_clipboard)
 
             finally:
@@ -520,13 +520,13 @@ class TextCache:
         try:
             original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
-            time.sleep(0.1)
+            time.sleep(0.05)
             pyautogui.keyDown("ctrl")
             pyautogui.press("v")
             pyautogui.keyUp("ctrl")
             play_sound("paste_formatted" if is_formatted else "paste_raw")
             print(f"[TextCache] Pasted {'formatted' if is_formatted else 'raw'} text.")
-            time.sleep(0.1)
+            time.sleep(0.05)
             pyperclip.copy(original_clipboard)
         except Exception as e:
             print(f"[TextCache] Error pasting text: {e}")

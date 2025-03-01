@@ -204,6 +204,22 @@ class TextCache:
         except Exception as e:
             print(f"[TextCache] Error pasting text: {e}")
 
+    # def _perform_paste_operation(self, text):
+    #     """Common code for pasting text via clipboard."""
+    #     try:
+    #         original_clipboard = pyperclip.paste()
+    #         pyperclip.copy(text)
+    #         time.sleep(0.05)
+    #         pyautogui.keyDown("ctrl")
+    #         pyautogui.press("v")
+    #         pyautogui.keyUp("ctrl")
+    #         time.sleep(0.05)
+    #         pyperclip.copy(original_clipboard)
+    #     except Exception as e:
+    #         print(f"Paste operation error: {e}")
+    #         self.notification.update_status(f"Paste error: {e}")
+
+
     def _perform_paste_operation(self, text):
         try:
             original_clipboard = pyperclip.paste()
