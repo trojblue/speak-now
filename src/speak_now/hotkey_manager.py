@@ -11,6 +11,20 @@ class HotkeyManager:
         self.hotkeys_registered = False
         self.recorder = None
 
+    def _on_paste_raw(self):
+        import keyboard
+        # Force-release Alt in case it’s stuck
+        keyboard.release('ctrl')
+        self.text_cache.paste_and_clear()
+        keyboard.release('ctrl')
+
+
+    def _on_paste_formatted(self):
+        import keyboard
+        # Force-release Alt in case it’s stuck
+        keyboard.release('alt')
+        self.text_cache.format_and_paste()
+
     def register_hotkeys(self):
         """Register keyboard hotkeys and return success status."""
         try:
@@ -20,8 +34,9 @@ class HotkeyManager:
 
             keyboard.add_hotkey(
                 self.config["hotkeys"]["paste_formatted"],
-                lambda: self.text_cache.format_and_paste(),
+                lambda: self._on_paste_formatted(),
             )
+
 
             keyboard.add_hotkey(
                 self.config["hotkeys"]["toggle_recording"], self._toggle_recording

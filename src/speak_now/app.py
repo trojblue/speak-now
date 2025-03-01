@@ -1,7 +1,7 @@
 import time
 
 from speak_now.config import load_config
-from speak_now.utils import generate_gemini, play_sound
+from speak_now.utils import generate_gemini, play_sound, cleanup_audio
 from speak_now.gui_notification import EnhancedNotification
 from speak_now.text_cache import TextCache
 from speak_now.hotkey_manager import HotkeyManager
@@ -96,3 +96,6 @@ class SpeechTranscriptionApp:
 
         # Clean up text cache and notification
         self.text_cache.cleanup()
+
+        # Clean up audio resources
+        cleanup_audio()
