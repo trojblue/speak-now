@@ -1,0 +1,33 @@
+# Speech-to-Text with AI Formatting Configuration
+
+[api]
+# Gemini API key (leave empty to use environment variable GEMINI_API_KEY)
+gemini_api_key = ""
+# Gemini model to use for text formatting
+model = "gemini-1.5-flash"
+
+[stt]
+# Speech-to-text model ("large-v2" or "base")
+model = "large-v2"
+# Timeout in seconds between speech recognition attempts
+timeout = 1.0
+
+[hotkeys]
+# Keyboard shortcuts
+paste_raw = "ctrl+`"
+paste_formatted = "alt+`"
+toggle_recording = "ctrl+alt+space"
+
+[ui]
+# UI settings
+opacity = 0.90
+max_history_items = 10
+default_format = "Concise"
+
+[formatting_prompts]
+# Prompts sent to Gemini for text formatting
+Natural = "Reformat this transcription to sound more natural and fix any grammar issues: "
+Formal = "Reformat this transcription into formal, professional language: "
+Concise = "Reformat this transcription to be more concise while preserving all important information: "
+Catgirl = "Reformat this transcription to sound like a cute catgirl talking: "
+None = ""  # No formatting
