@@ -193,6 +193,28 @@ class TextCache:
         self.notification.show_format_result(formatted_text)
         self._paste_direct(formatted_text, is_formatted=True)
 
+        prompt = self.config["formatting_prompts"][format_type] + text_to_format
+        print(f"[TextCache] Formatting with prompt: '{prompt[:70]}...'")
+
+        formatted_text = generate_gemini(
+            prompt, self.api_key, self.config["api"]["model"]
+        )
+
+        print(
+            f"[TextCache] Formatted text (first 50 chars): '{formatted_text[:50]}...'"
+        )
+
+        self.last_unformatted_text = text_to_format
+        self.last_format_used = format_type
+        self.last_formatted_text = formatted_text
+
+        # If we formatted the actual cache text, we consider that chunk done
+        if original_text == self.cache:
+            self.cache = ""
+
+        self.notification.show_format_result(formatted_text)
+        self._paste_direct(formatted_text, is_formatted=True)
+
     def _paste_direct(self, text, is_formatted):
         """
         Paste text directly without clearing the cache.

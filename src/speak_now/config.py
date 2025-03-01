@@ -12,8 +12,14 @@ DEFAULT_CONFIG = {
         "paste_raw": "ctrl+`",
         "paste_formatted": "alt+`",
         "toggle_recording": "ctrl+alt+space",
+        "toggle_window": "ctrl+alt+v",  # New hotkey to toggle window visibility
     },
-    "ui": {"opacity": 0.90, "max_history_items": 10, "default_format": "Concise"},
+    "ui": {
+        "opacity": 0.90, 
+        "max_history_items": 10, 
+        "default_format": "Concise",
+        "start_hidden": False,  # When true, UI will never show automatically, only when toggled with hotkey
+    },
     "formatting_prompts": {
         "Natural": "Reformat this transcription to sound more natural and fix any grammar issues: ",
         "Formal": "Reformat this transcription into formal, professional language: ",

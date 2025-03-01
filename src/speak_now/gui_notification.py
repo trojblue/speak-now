@@ -61,12 +61,27 @@ class EnhancedNotification:
             # Set size and center
             self.popup.geometry("400x320")
             self._center_window()
+            
+            # Hide window on startup if configured
+            if self.config["ui"].get("start_hidden", False):
+                self.popup.withdraw()
 
             self.running = True
             self._process_queue()
             self.root.mainloop()
         except Exception as e:
             print(f"GUI thread error: {e}")
+
+    def toggle_window_visibility(self):
+        """Toggle window visibility state."""
+        if self.popup:
+            if self.popup.state() == 'withdrawn':
+                self._show_window()
+                self.update_status("Window shown")
+            else:
+                self.popup.withdraw()
+                self.update_status("Window hidden")
+            play_sound("toggle_recording")
 
     def _setup_main_window(self):
         """Setup the main popup window."""

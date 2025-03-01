@@ -23,6 +23,7 @@ toggle_recording = "ctrl+alt+space"
 opacity = 0.90
 max_history_items = 10
 default_format = "Concise"
+start_hidden = false
 
 [formatting_prompts]
 # Prompts sent to Gemini for text formatting

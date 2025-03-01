@@ -20,6 +20,7 @@ class SpeechTranscriptionApp:
         self.hotkey_manager = HotkeyManager(self.config, self.text_cache)
         self.recorder = None
 
+
     def start(self):
         """Start the application."""
         print("Enhanced Speech-to-Text with AI Formatting")
@@ -27,7 +28,18 @@ class SpeechTranscriptionApp:
         print(f"Paste raw text: {self.config['hotkeys']['paste_raw']}")
         print(f"Format & paste: {self.config['hotkeys']['paste_formatted']}")
         print(f"Toggle recording: {self.config['hotkeys']['toggle_recording']}")
+        
+        # Add new toggle window hotkey to the output
+        if "toggle_window" in self.config["hotkeys"]:
+            print(f"Toggle window: {self.config['hotkeys']['toggle_window']}")
+        
         print("Use the GUI window to select formatting style and view history.")
+        
+        # Inform user if starting in hidden mode
+        if self.config["ui"].get("start_hidden", False):
+            print("Starting with GUI hidden. UI will not appear automatically.")
+            print(f"Use {self.config['hotkeys'].get('toggle_window', 'toggle window hotkey')} to show/hide interface.")
+        
         print("Press Ctrl+C in terminal to exit.\n")
 
         # Register hotkeys
