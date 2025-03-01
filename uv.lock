@@ -3604,6 +3604,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "keyboard" },
+    { name = "pyaudio" },
     { name = "pyperclip" },
     { name = "realtimestt" },
     { name = "requests" },
@@ -3613,6 +3614,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "keyboard", specifier = ">=0.13.5" },
+    { name = "pyaudio", specifier = ">=0.2.14" },
     { name = "pyperclip", specifier = ">=1.9.0" },
     { name = "realtimestt", specifier = ">=0.3.95" },
     { name = "requests", specifier = ">=2.32.3" },

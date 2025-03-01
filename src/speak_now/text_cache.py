@@ -205,19 +205,30 @@ class TextCache:
             print(f"[TextCache] Error pasting text: {e}")
 
     def _perform_paste_operation(self, text):
-        """Common code for pasting text via clipboard."""
         try:
             original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
-            time.sleep(0.1)
-            pyautogui.keyDown("ctrl")
-            pyautogui.press("v")
-            pyautogui.keyUp("ctrl")
-            time.sleep(0.1)
+
+            # Tweak this sleep to something smaller – or remove it entirely
+            # if you find that your system doesn't need the delay.
+            time.sleep(0.05)  
+
+            # Option A: Use keyboard lib
+            import keyboard
+            keyboard.press_and_release('ctrl+v')
+
+            # Option B: Or use pyautogui.hotkey which handles press + release:
+            # pyautogui.hotkey('ctrl', 'v')
+
+            # If you can safely remove or reduce the second sleep, do so:
+            time.sleep(0.03)
+
             pyperclip.copy(original_clipboard)
+
         except Exception as e:
             print(f"Paste operation error: {e}")
             self.notification.update_status(f"Paste error: {e}")
+
 
     def _update_status(self):
         """Update status bar with current state information."""
