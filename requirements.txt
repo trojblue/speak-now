@@ -1,3 +1,5 @@
 pyautogui
 RealtimeSTT
 win10toast_click
+winsound
+tkinter
