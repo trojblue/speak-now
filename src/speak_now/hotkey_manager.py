@@ -1,5 +1,8 @@
 import keyboard
 
+# ---------------------------------------------------------------------
+# HOTKEY HANDLING
+# ---------------------------------------------------------------------
 class HotkeyManager:
     def __init__(self, config, text_cache):
         self.config = config
@@ -8,54 +11,58 @@ class HotkeyManager:
         self.recorder = None
 
     def _on_paste_raw(self):
-        # Directly call text_cache’s raw paste; do not manually release ctrl/alt
+        import keyboard
+        # Force-release Alt in case it’s stuck
+        keyboard.release('ctrl')
         self.text_cache.paste_and_clear()
+        keyboard.release('ctrl')
+
 
     def _on_paste_formatted(self):
-        # Directly call text_cache’s format & paste
+        import keyboard
+        # Force-release Alt in case it’s stuck
+        keyboard.release('alt')
         self.text_cache.format_and_paste()
 
     def register_hotkeys(self):
         """Register keyboard hotkeys and return success status."""
         try:
-            # Fire on key release to avoid the user needing to hold keys for too long
             keyboard.add_hotkey(
-                self.config["hotkeys"]["paste_raw"], 
-                callback=self._on_paste_raw, 
-                trigger_on_release=True
+                self.config["hotkeys"]["paste_raw"], self.text_cache.paste_and_clear
             )
 
             keyboard.add_hotkey(
                 self.config["hotkeys"]["paste_formatted"],
-                callback=self._on_paste_formatted,
-                trigger_on_release=True
+                lambda: self._on_paste_formatted(),
             )
 
+
             keyboard.add_hotkey(
-                self.config["hotkeys"]["toggle_recording"],
-                self._toggle_recording,
-                trigger_on_release=True
+                self.config["hotkeys"]["toggle_recording"], self._toggle_recording
             )
 
             self.hotkeys_registered = True
-            print("[Hotkeys] Successfully registered hotkeys")
+            print(f"[Hotkeys] Successfully registered hotkeys")
             return True
         except Exception as e:
             print(f"[Hotkeys] Failed to register hotkeys: {e}")
             return False
 
     def _toggle_recording(self):
-        # Toggle is built right into the notification
+        """Toggle recording via hotkey."""
         if hasattr(self.text_cache.notification, "_toggle_recording"):
             self.text_cache.notification._toggle_recording()
 
     def set_recorder(self, recorder):
+        """Set recorder reference for control operations."""
         self.recorder = recorder
 
     def is_registered(self):
+        """Check if hotkeys were successfully registered."""
         return self.hotkeys_registered
 
     def unregister(self):
+        """Unregister all hotkeys."""
         try:
             keyboard.unhook_all()
             self.hotkeys_registered = False
