@@ -1,0 +1,17 @@
+[project]
+name = "speak-now"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "yada", email = "trojblue@gmail.com" }
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+speak-now = "speak_now:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
