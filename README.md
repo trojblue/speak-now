@@ -10,7 +10,7 @@ Speak Now captures your speech in real-time, transcribes it, and allows you to p
 ## Features
 
 <div align="center">
-  <img src="./docs/image.png" alt="Prompt Deck Interface" width="640"/>
+  <img src="./docs/image.png" alt="Prompt Deck Interface" width="240"/>
   <p><em>Minimum (and completely hidden-able) UI</em></p>
 </div>
 
