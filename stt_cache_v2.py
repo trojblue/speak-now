@@ -1,30 +1,3 @@
-import os
-import sys
-import time
-import json
-import queue
-import threading
-import requests
-import pyautogui
-import pyperclip
-import keyboard
-import winsound
-import toml
-from datetime import datetime
-from tkinter import (
-    Tk,
-    Toplevel,
-    Label,
-    Frame,
-    Button,
-    OptionMenu,
-    StringVar,
-    Scrollbar,
-    Listbox,
-    BooleanVar,
-    Checkbutton,
-)
-
 from speak_now.app import SpeechTranscriptionApp
 
 # ---------------------------------------------------------------------

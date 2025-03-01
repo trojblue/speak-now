@@ -1,6 +1,6 @@
 [project]
 name = "speak-now"
-version = "0.1.0"
+version = "0.1.1"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-speak-now = "speak_now:main"
+speak-now = "speak_now.cli:main"
 
 [build-system]
 requires = ["hatchling"]

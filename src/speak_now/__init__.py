@@ -1,2 +1,3 @@
-def main() -> None:
-    print("Hello from speak-now!")
+# def main() -> None:
+#     cli_main()
+#     # print("Hello from speak-now!")
