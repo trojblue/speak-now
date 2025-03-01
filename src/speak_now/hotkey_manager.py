@@ -9,6 +9,7 @@ class HotkeyManager:
         self.text_cache = text_cache
         self.hotkeys_registered = False
         self.recorder = None
+        self.app = None  # Reference to main app
 
     def _on_paste_raw(self):
         import keyboard
@@ -64,9 +65,15 @@ class HotkeyManager:
             # since it's a different action and doesn't need the mute/unmute distinction
             self.text_cache.notification.toggle_window_visibility()
 
-    def set_recorder(self, recorder):
-        """Set recorder reference for control operations."""
-        self.recorder = recorder
+    def set_recorder(self, app_or_recorder):
+        """Set recorder or app reference for control operations."""
+        # The app now passes itself as a reference
+        if hasattr(app_or_recorder, 'recorder'):
+            self.app = app_or_recorder
+            self.recorder = app_or_recorder.recorder
+        else:
+            # For backward compatibility
+            self.recorder = app_or_recorder
 
     def is_registered(self):
         """Check if hotkeys were successfully registered."""

@@ -19,6 +19,8 @@ class SpeechTranscriptionApp:
         self.text_cache = TextCache(self.config)
         self.hotkey_manager = HotkeyManager(self.config, self.text_cache)
         self.recorder = None
+        self.recorder_active = True  # Track if recorder is currently active
+        self.recorder_initialized = False  # Track if recorder has been initialized
 
 
     def start(self):
@@ -54,12 +56,22 @@ class SpeechTranscriptionApp:
             # Import STT library here to handle import errors gracefully
             from RealtimeSTT import AudioToTextRecorder
 
-            # Initialize the audio recorder
-            self.recorder = AudioToTextRecorder(model=self.config["stt"]["model"])
-            self.recorder.timeout = self.config["stt"]["timeout"]
+            # Store the recorder class for later initialization
+            self.RecorderClass = AudioToTextRecorder
+            
+            # Initialize the recorder only if needed (not starting in muted state)
+            if self.text_cache.notification.is_recording_enabled():
+                self._initialize_recorder()
+            else:
+                # If we're starting in a muted state, don't initialize the recorder yet
+                print("[Main] Starting with recording disabled - microphone not initialized")
+                self.recorder_active = False
+
+            # Set app reference in notification for microphone control
+            self.text_cache.notification.set_app_reference(self)
 
             # Set recorder reference in hotkey manager
-            self.hotkey_manager.set_recorder(self.recorder)
+            self.hotkey_manager.set_recorder(self)
 
             # Play startup sound
             play_sound("startup")
@@ -79,12 +91,44 @@ class SpeechTranscriptionApp:
 
         return True
 
+    def _initialize_recorder(self):
+        """Initialize the audio recorder if not already initialized."""
+        if not self.recorder_initialized:
+            self.recorder = self.RecorderClass(model=self.config["stt"]["model"])
+            self.recorder.timeout = self.config["stt"]["timeout"]
+            self.recorder_initialized = True
+            print("[Main] Initialized microphone recorder")
+        self.recorder_active = True
+
+    def _shutdown_recorder(self):
+        """Shut down the recorder to free the microphone."""
+        if self.recorder_initialized and self.recorder:
+            try:
+                self.recorder.shutdown()
+                self.recorder = None
+                self.recorder_initialized = False
+                print("[Main] Released microphone")
+            except Exception as e:
+                print(f"[Error] Failed to shut down recorder: {e}")
+        self.recorder_active = False
+
+    def toggle_microphone(self, recording_state):
+        """Toggle microphone usage based on recording state."""
+        if recording_state and not self.recorder_active:
+            # If recording should be enabled but recorder is inactive, initialize it
+            self._initialize_recorder()
+            print("[Main] Microphone activated")
+        elif not recording_state and self.recorder_active:
+            # If recording should be disabled but recorder is active, shut it down
+            self._shutdown_recorder()
+            print("[Main] Microphone deactivated")
+
     def _run_main_loop(self):
         """Run the main application loop."""
         try:
             while True:
-                # Only process audio if recording is enabled
-                if self.text_cache.notification.is_recording_enabled():
+                # Only process audio if recording is enabled and recorder is active
+                if self.text_cache.notification.is_recording_enabled() and self.recorder_active and self.recorder:
                     self.recorder.text(
                         lambda recognized_text: self.text_cache.add_text(
                             recognized_text
@@ -97,11 +141,8 @@ class SpeechTranscriptionApp:
     def cleanup(self):
         """Clean up resources before exit."""
         # Shutdown the recorder
-        if self.recorder:
-            try:
-                self.recorder.shutdown()
-            except Exception as e:
-                print(f"[Error] Failed to shut down recorder: {e}")
+        if self.recorder and self.recorder_initialized:
+            self._shutdown_recorder()
 
         # Unregister hotkeys
         self.hotkey_manager.unregister()

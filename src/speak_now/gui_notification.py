@@ -30,6 +30,7 @@ class EnhancedNotification:
         self.history = []  # Store history items
         self.config = config
         self.recording_active = True  # Start with recording enabled
+        self.app_reference = None  # Reference to main app for microphone control
 
         self.root = None
         self.popup = None
@@ -41,7 +42,7 @@ class EnhancedNotification:
         self.running = False
         self.thread = threading.Thread(target=self._run_gui, daemon=True)
         self.thread.start()
-        time.sleep(0.1)
+        time.sleep(0.1)  # Wait for GUI thread to initialize
 
     def _run_gui(self):
         """Initialize and run the GUI in a separate thread."""
@@ -351,18 +352,26 @@ class EnhancedNotification:
             self.popup.lift()
             self.popup.attributes("-topmost", True)
 
+    def set_app_reference(self, app):
+        """Set reference to main app for microphone control."""
+        self.app_reference = app
+
     def _toggle_recording(self):
-        """Toggle recording on/off."""
+        """Toggle recording on/off and control microphone usage."""
         self.recording_active = not self.recording_active
 
         if self.recording_active:
             self.recording_button.config(text="⏸️")  # Pause symbol
             self.update_status("Recording active")
-            play_sound("unmute")  # Play unmute sound instead of generic toggle
+            play_sound("unmute")  # Play unmute sound
         else:
             self.recording_button.config(text="▶️")  # Play symbol
             self.update_status("Recording paused")
-            play_sound("mute")  # Play mute sound instead of generic toggle
+            play_sound("mute")  # Play mute sound
+        
+        # Tell the main app to toggle microphone state
+        if self.app_reference:
+            self.app_reference.toggle_microphone(self.recording_active)
 
     def _process_queue(self):
         """Process messages from the queue to update the UI."""
