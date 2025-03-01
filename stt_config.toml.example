@@ -3,14 +3,14 @@
 [api]
 # Gemini API key (leave empty to use environment variable GEMINI_API_KEY)
 gemini_api_key = ""
-# Gemini model to use for text formatting
+# Gemini model to use for text formatting. 1.5 seems to work a bit better than 2.0
 model = "gemini-1.5-flash"
 
 [stt]
 # Speech-to-text model ("large-v2" or "base")
 model = "large-v2"
 # Timeout in seconds between speech recognition attempts
-timeout = 1.0
+timeout = 0.2
 
 [hotkeys]
 # Keyboard shortcuts
