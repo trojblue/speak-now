@@ -1,5 +1,6 @@
+requests
 pyautogui
+pyperclip
+keyboard
+toml
 RealtimeSTT
-win10toast_click
-winsound
-tkinter
