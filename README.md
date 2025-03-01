@@ -4,6 +4,8 @@ A locally-hosted, low-latency speech-to-text solution with LLM integration.
 
 ## Overview
 
+![alt text](docs/image.png)
+
 Speak Now captures your speech in real-time and allows you to paste it as text with optional LLM-based formatting. It's designed to be lightweight and efficient for everyday use.
 
 ## Features
