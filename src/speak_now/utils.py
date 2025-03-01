@@ -195,8 +195,31 @@ def play_sound(sound_type, volume=0.5):
             ))
             
         elif sound_type == "toggle_recording":
-            # Clean toggle sound
+            # Clean toggle sound - now replaced with mute/unmute
             sound_engine.play(sound_engine.glass_tone(880.00, 0.08, volume * 0.6, attack=0.003, release=0.07))
+            
+        # New distinct sounds for mute and unmute actions
+        elif sound_type == "mute":
+            # Darker, lower tone for muting
+            sound_engine.play(sound_engine.multi_tone(
+                [523.25, 392.00],  # C5, G4 - downward interval for muting
+                0.10, 
+                volume * 0.55, 
+                relative_volumes=[0.9, 1.0], 
+                attack=0.005, 
+                release=0.09
+            ))
+            
+        elif sound_type == "unmute":
+            # Brighter, higher tone for unmuting
+            sound_engine.play(sound_engine.multi_tone(
+                [698.46, 1046.50],  # F5, C6 - upward interval for unmuting
+                0.10, 
+                volume * 0.55, 
+                relative_volumes=[1.0, 0.7], 
+                attack=0.005, 
+                release=0.08
+            ))
             
     except Exception as e:
         print(f"Sound error: {e}")

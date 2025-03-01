@@ -60,6 +60,8 @@ class HotkeyManager:
     def _toggle_window_visibility(self):
         """Toggle window visibility via hotkey."""
         if hasattr(self.text_cache.notification, "toggle_window_visibility"):
+            # We'll keep using the existing toggle_recording sound for window visibility
+            # since it's a different action and doesn't need the mute/unmute distinction
             self.text_cache.notification.toggle_window_visibility()
 
     def set_recorder(self, recorder):

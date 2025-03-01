@@ -358,11 +358,11 @@ class EnhancedNotification:
         if self.recording_active:
             self.recording_button.config(text="⏸️")  # Pause symbol
             self.update_status("Recording active")
+            play_sound("unmute")  # Play unmute sound instead of generic toggle
         else:
             self.recording_button.config(text="▶️")  # Play symbol
             self.update_status("Recording paused")
-
-        play_sound("toggle_recording")
+            play_sound("mute")  # Play mute sound instead of generic toggle
 
     def _process_queue(self):
         """Process messages from the queue to update the UI."""
