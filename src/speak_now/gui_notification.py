@@ -2,7 +2,18 @@ import queue
 import threading
 import time
 from datetime import datetime
-from tkinter import Tk, Toplevel, Label, Frame, Button, OptionMenu, StringVar, Scrollbar, Listbox, BooleanVar
+from tkinter import (
+    Tk,
+    Toplevel,
+    Label,
+    Frame,
+    Button,
+    OptionMenu,
+    StringVar,
+    Scrollbar,
+    Listbox,
+    BooleanVar,
+)
 from .utils import play_sound
 
 
@@ -11,7 +22,7 @@ from .utils import play_sound
 # ---------------------------------------------------------------------
 class EnhancedNotification:
     """Thread-safe, draggable notification with formatting controls and status display."""
-    
+
     def __init__(self, format_callback, config):
         self.message_queue = queue.Queue()
         self.format_callback = format_callback
@@ -26,7 +37,7 @@ class EnhancedNotification:
         self.status_label = None
         self.format_var = None
         self.history_listbox = None
-        
+
         self.running = False
         self.thread = threading.Thread(target=self._run_gui, daemon=True)
         self.thread.start()
@@ -46,7 +57,7 @@ class EnhancedNotification:
             self._setup_history_panel()
             self._setup_controls()
             self._setup_status_bar()
-            
+
             # Set size and center
             self.popup.geometry("400x320")
             self._center_window()
@@ -73,63 +84,64 @@ class EnhancedNotification:
         """Setup the custom title bar with drag functionality."""
         title_bar = Frame(self.main_frame, bg="#222222")
         title_bar.pack(fill="x", side="top")
-        
+
         title_label = Label(
             title_bar,
             text="Speech Transcription",
             font=("Segoe UI", 10, "bold"),
             fg="#FFFFFF",
             bg="#222222",
-            padx=10, pady=5
+            padx=10,
+            pady=5,
         )
         title_label.pack(side="left")
-        
+
         # Recording toggle button
         self.recording_var = BooleanVar(value=True)
         self.recording_button = Button(
-            title_bar, 
+            title_bar,
             text="⏸️",  # Pause symbol
             font=("Segoe UI", 10),
-            fg="#FFFFFF", 
+            fg="#FFFFFF",
             bg="#222222",
-            bd=0, 
-            padx=8, 
+            bd=0,
+            padx=8,
             pady=5,
-            activebackground="#555555", 
+            activebackground="#555555",
             activeforeground="#FFFFFF",
-            command=self._toggle_recording
+            command=self._toggle_recording,
         )
         self.recording_button.pack(side="right", padx=(0, 5))
-        
+
         # Minimize button
         min_button = Button(
-            title_bar, 
+            title_bar,
             text="_",
             font=("Segoe UI", 10, "bold"),
-            fg="#FFFFFF", 
+            fg="#FFFFFF",
             bg="#222222",
-            bd=0, 
-            padx=8, 
+            bd=0,
+            padx=8,
             pady=5,
-            activebackground="#555555", 
+            activebackground="#555555",
             activeforeground="#FFFFFF",
-            command=self._minimize_window
+            command=self._minimize_window,
         )
         min_button.pack(side="right", padx=(0, 5))
-        
+
         # Close button
         close_button = Button(
-            title_bar, 
+            title_bar,
             text="×",
             font=("Segoe UI", 10, "bold"),
-            fg="#FFFFFF", 
+            fg="#FFFFFF",
             bg="#222222",
-            bd=0, 
-            padx=10, 
+            bd=0,
+            padx=10,
             pady=5,
-            activebackground="#FF5555", 
+            activebackground="#FF5555",
             activeforeground="#FFFFFF",
-            command=self._close_window
+            command=self._close_window,
         )
         close_button.pack(side="right")
 
@@ -149,7 +161,7 @@ class EnhancedNotification:
             bg="#333333",
             wraplength=370,
             justify="left",
-            anchor="w"
+            anchor="w",
         )
         self.content_label.pack(fill="both", expand=True, pady=(0, 10))
 
@@ -157,19 +169,19 @@ class EnhancedNotification:
         """Setup the history panel to display previous transcriptions."""
         history_frame = Frame(self.main_frame, bg="#2A2A2A", padx=15, pady=5)
         history_frame.pack(fill="x", side="bottom", before=self.content_label)
-        
+
         history_label = Label(
             history_frame,
             text="Recent Transcriptions:",
             font=("Segoe UI", 9, "bold"),
             fg="#FFFFFF",
-            bg="#2A2A2A"
+            bg="#2A2A2A",
         )
         history_label.pack(anchor="w", pady=(0, 5))
-        
+
         list_frame = Frame(history_frame, bg="#2A2A2A")
         list_frame.pack(fill="x", expand=True)
-        
+
         self.history_listbox = Listbox(
             list_frame,
             height=3,
@@ -179,14 +191,14 @@ class EnhancedNotification:
             selectbackground="#505050",
             bd=0,
             highlightthickness=1,
-            highlightcolor="#444444"
+            highlightcolor="#444444",
         )
         self.history_listbox.pack(side="left", fill="x", expand=True)
         self.history_listbox.bind("<Double-1>", self._on_history_item_select)
-        
+
         scrollbar = Scrollbar(list_frame)
         scrollbar.pack(side="right", fill="y")
-        
+
         self.history_listbox.config(yscrollcommand=scrollbar.set)
         scrollbar.config(command=self.history_listbox.yview)
 
@@ -194,20 +206,18 @@ class EnhancedNotification:
         """Setup the control panel with formatting options and paste buttons."""
         controls_frame = Frame(self.main_frame, bg="#333333", padx=15, pady=8)
         controls_frame.pack(fill="x", side="bottom")
-        
+
         format_label = Label(
             controls_frame,
             text="Format:",
             font=("Segoe UI", 9),
             fg="#FFFFFF",
-            bg="#333333"
+            bg="#333333",
         )
         format_label.pack(side="left", padx=(0, 5))
-        
+
         format_menu = OptionMenu(
-            controls_frame,
-            self.format_var,
-            *self.config["formatting_prompts"].keys()
+            controls_frame, self.format_var, *self.config["formatting_prompts"].keys()
         )
         format_menu.config(
             font=("Segoe UI", 9),
@@ -216,13 +226,13 @@ class EnhancedNotification:
             activebackground="#555555",
             activeforeground="#FFFFFF",
             highlightthickness=0,
-            bd=0
+            bd=0,
         )
         format_menu["menu"].config(
             bg="#444444",
             fg="#FFFFFF",
             activebackground="#555555",
-            activeforeground="#FFFFFF"
+            activeforeground="#FFFFFF",
         )
         format_menu.pack(side="left", padx=(0, 10))
 
@@ -233,8 +243,10 @@ class EnhancedNotification:
             fg="#FFFFFF",
             bg="#555555",
             activebackground="#666666",
-            bd=0, padx=8, pady=2,
-            command=self._request_raw_paste
+            bd=0,
+            padx=8,
+            pady=2,
+            command=self._request_raw_paste,
         )
         raw_button.pack(side="right", padx=(10, 0))
 
@@ -245,8 +257,10 @@ class EnhancedNotification:
             fg="#FFFFFF",
             bg="#007ACC",
             activebackground="#0066AA",
-            bd=0, padx=8, pady=2,
-            command=self._request_formatting
+            bd=0,
+            padx=8,
+            pady=2,
+            command=self._request_formatting,
         )
         format_button.pack(side="right")
 
@@ -254,20 +268,20 @@ class EnhancedNotification:
         """Setup the status bar at the bottom of the window."""
         status_frame = Frame(self.main_frame, bg="#222222", padx=10, pady=5)
         status_frame.pack(fill="x", side="bottom")
-        
+
         self.status_label = Label(
             status_frame,
             text="Cache: Empty | Format: None",
             font=("Segoe UI", 8),
             fg="#AAAAAA",
-            bg="#222222"
+            bg="#222222",
         )
         self.status_label.pack(side="left")
 
     def _make_draggable(self, widget, title_label):
         """Make a widget draggable (for custom window)."""
         self._drag_data = {"x": 0, "y": 0}
-        
+
         def start_drag(event):
             self._drag_data["x"] = event.x
             self._drag_data["y"] = event.y
@@ -321,25 +335,25 @@ class EnhancedNotification:
     def _toggle_recording(self):
         """Toggle recording on/off."""
         self.recording_active = not self.recording_active
-        
+
         if self.recording_active:
             self.recording_button.config(text="⏸️")  # Pause symbol
             self.update_status("Recording active")
         else:
             self.recording_button.config(text="▶️")  # Play symbol
             self.update_status("Recording paused")
-            
+
         play_sound("toggle_recording")
-        
+
     def _process_queue(self):
         """Process messages from the queue to update the UI."""
         if not self.running or not self.content_label:
             return
-            
+
         try:
             while not self.message_queue.empty():
                 message_type, message = self.message_queue.get_nowait()
-                
+
                 if message_type == "content":
                     # Display the most recent part of long text instead of the beginning
                     if len(message) > 200:
@@ -347,41 +361,50 @@ class EnhancedNotification:
                         display_message = "..." + message[-197:]
                     else:
                         display_message = message
-                        
+
                     self.current_text = message
                     self.content_label.config(text=display_message)
                     self._show_window()
-                    
+
                 elif message_type == "status":
                     self.status_label.config(text=message)
-                    
+
                 elif message_type == "format_result":
                     if len(message) > 200:
                         display_message = "..." + message[-197:]
                     else:
                         display_message = message
-                        
+
                     self.current_text = message
                     self.content_label.config(text=display_message)
                     self.status_label.config(text="Formatting complete")
                     self._show_window()
-                    
+
                 elif message_type == "add_history":
                     # Add to history if significant (more than 5 words)
                     if len(message.split()) > 5:
                         timestamp = datetime.now().strftime("%H:%M:%S")
                         # Create a preview (first few words)
                         words = message.split()
-                        preview = " ".join(words[:4]) + ("..." if len(words) > 4 else "")
+                        preview = " ".join(words[:4]) + (
+                            "..." if len(words) > 4 else ""
+                        )
                         history_item = f"[{timestamp}] {preview}"
-                        
+
                         # Add to our internal history list
-                        self.history.insert(0, {"time": timestamp, "text": message, "preview": history_item})
-                        
+                        self.history.insert(
+                            0,
+                            {
+                                "time": timestamp,
+                                "text": message,
+                                "preview": history_item,
+                            },
+                        )
+
                         # Keep history within limit
                         if len(self.history) > self.config["ui"]["max_history_items"]:
                             self.history.pop()
-                            
+
                         # Update listbox
                         self.history_listbox.delete(0, "end")
                         for item in self.history:
@@ -410,12 +433,12 @@ class EnhancedNotification:
         """Update the status bar."""
         if self.running:
             self.message_queue.put(("status", message))
-    
+
     def show_format_result(self, message):
         """Show formatted text result."""
         if self.running:
             self.message_queue.put(("format_result", message))
-    
+
     def _request_formatting(self):
         """Called by the GUI 'Format & Paste' button."""
         if self.current_text:
@@ -423,10 +446,10 @@ class EnhancedNotification:
             self.format_callback(self.current_text, format_type)
         else:
             self.update_status("Nothing to format - cache is empty")
-            
+
     def _request_raw_paste(self):
         """Called by the GUI 'Paste Raw' button."""
-        if hasattr(self, 'raw_paste_callback'):
+        if hasattr(self, "raw_paste_callback"):
             self.raw_paste_callback()
         else:
             self.update_status("Raw paste callback not set")
@@ -438,7 +461,7 @@ class EnhancedNotification:
     def get_current_format(self):
         """Get currently selected format type."""
         return self.format_var.get()
-        
+
     def is_recording_enabled(self):
         """Check if recording is currently enabled."""
         return self.recording_active

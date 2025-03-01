@@ -22,9 +22,10 @@ CONFIG = {
         "Formal": "Reformat this transcription into formal, professional language: ",
         "Concise": "Reformat this transcription to be more concise while preserving all important information: ",
         "Catgirl": "Reformat this transcription to sound like a cute catgirl talking: ",
-        "None": ""  # No formatting
-    }
+        "None": "",  # No formatting
+    },
 }
+
 
 # ---------------------------------------------------------------------
 # HELPER FUNCTIONS
@@ -40,14 +41,15 @@ def generate_gemini(prompt, api_key, model="gemini-1.5-flash"):
         ],
     }
     response = requests.post(url, json=data, headers=headers, params=params)
-    
+
     if response.status_code != 200:
         raise Exception(f"API request failed: {response.status_code} - {response.text}")
-    
+
     try:
         return response.json()["candidates"][0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError) as e:
         raise ValueError("Unexpected API response format") from e
+
 
 def play_sound(sound_type):
     """Play different sounds based on the action."""
@@ -75,12 +77,13 @@ def play_sound(sound_type):
     except:
         pass
 
+
 # ---------------------------------------------------------------------
 # GUI NOTIFICATION CLASS
 # ---------------------------------------------------------------------
 class EnhancedNotification:
     """Thread-safe, draggable notification with formatting controls and status display."""
-    
+
     def __init__(self, format_callback):
         self.message_queue = queue.Queue()
         self.format_callback = format_callback
@@ -91,7 +94,7 @@ class EnhancedNotification:
         self.content_label = None
         self.status_label = None
         self.format_var = None
-        
+
         self.running = False
         self.thread = threading.Thread(target=self._run_gui, daemon=True)
         self.thread.start()
@@ -116,24 +119,30 @@ class EnhancedNotification:
             # Title bar
             title_bar = Frame(main_frame, bg="#222222")
             title_bar.pack(fill="x", side="top")
-            
+
             title_label = Label(
                 title_bar,
                 text="Speech Transcription",
                 font=("Segoe UI", 10, "bold"),
                 fg="#FFFFFF",
                 bg="#222222",
-                padx=10, pady=5
+                padx=10,
+                pady=5,
             )
             title_label.pack(side="left")
-            
+
             close_button = Button(
-                title_bar, text="×",
+                title_bar,
+                text="×",
                 font=("Segoe UI", 10, "bold"),
-                fg="#FFFFFF", bg="#222222",
-                bd=0, padx=10, pady=5,
-                activebackground="#FF5555", activeforeground="#FFFFFF",
-                command=self._minimize_window
+                fg="#FFFFFF",
+                bg="#222222",
+                bd=0,
+                padx=10,
+                pady=5,
+                activebackground="#FF5555",
+                activeforeground="#FFFFFF",
+                command=self._minimize_window,
             )
             close_button.pack(side="right")
 
@@ -149,40 +158,38 @@ class EnhancedNotification:
                 bg="#333333",
                 wraplength=280,
                 justify="left",
-                anchor="w"
+                anchor="w",
             )
             self.content_label.pack(fill="both", expand=True, pady=(0, 10))
 
             # Status bar
             status_frame = Frame(main_frame, bg="#222222", padx=10, pady=5)
             status_frame.pack(fill="x", side="bottom")
-            
+
             self.status_label = Label(
                 status_frame,
                 text="Cache: Empty | Format: None",
                 font=("Segoe UI", 8),
                 fg="#AAAAAA",
-                bg="#222222"
+                bg="#222222",
             )
             self.status_label.pack(side="left")
 
             # Controls frame
             controls_frame = Frame(main_frame, bg="#333333", padx=15, pady=8)
             controls_frame.pack(fill="x", side="bottom", before=status_frame)
-            
+
             format_label = Label(
                 controls_frame,
                 text="Format:",
                 font=("Segoe UI", 9),
                 fg="#FFFFFF",
-                bg="#333333"
+                bg="#333333",
             )
             format_label.pack(side="left", padx=(0, 5))
-            
+
             format_menu = OptionMenu(
-                controls_frame,
-                self.format_var,
-                *CONFIG["formatting_prompts"].keys()
+                controls_frame, self.format_var, *CONFIG["formatting_prompts"].keys()
             )
             format_menu.config(
                 font=("Segoe UI", 9),
@@ -191,13 +198,13 @@ class EnhancedNotification:
                 activebackground="#555555",
                 activeforeground="#FFFFFF",
                 highlightthickness=0,
-                bd=0
+                bd=0,
             )
             format_menu["menu"].config(
                 bg="#444444",
                 fg="#FFFFFF",
                 activebackground="#555555",
-                activeforeground="#FFFFFF"
+                activeforeground="#FFFFFF",
             )
             format_menu.pack(side="left", padx=(0, 10))
 
@@ -208,8 +215,10 @@ class EnhancedNotification:
                 fg="#FFFFFF",
                 bg="#007ACC",
                 activebackground="#0066AA",
-                bd=0, padx=8, pady=2,
-                command=self._request_formatting
+                bd=0,
+                padx=8,
+                pady=2,
+                command=self._request_formatting,
             )
             format_button.pack(side="right")
 
@@ -228,7 +237,7 @@ class EnhancedNotification:
 
     def _make_draggable(self, widget, title_label):
         self._drag_data = {"x": 0, "y": 0}
-        
+
         def start_drag(event):
             self._drag_data["x"] = event.x
             self._drag_data["y"] = event.y
@@ -276,7 +285,7 @@ class EnhancedNotification:
         try:
             while not self.message_queue.empty():
                 message_type, message = self.message_queue.get_nowait()
-                
+
                 if message_type == "content":
                     if len(message) > 150:
                         display_message = message[:147] + "..."
@@ -285,10 +294,10 @@ class EnhancedNotification:
                     self.current_text = message
                     self.content_label.config(text=display_message)
                     self._show_window()
-                    
+
                 elif message_type == "status":
                     self.status_label.config(text=message)
-                    
+
                 elif message_type == "format_result":
                     if len(message) > 150:
                         display_message = message[:147] + "..."
@@ -310,11 +319,11 @@ class EnhancedNotification:
     def update_status(self, message):
         if self.running:
             self.message_queue.put(("status", message))
-    
+
     def show_format_result(self, message):
         if self.running:
             self.message_queue.put(("format_result", message))
-    
+
     def _request_formatting(self):
         """Called by the GUI 'Format & Paste (alt+`)' button."""
         if self.current_text:
@@ -336,13 +345,14 @@ class EnhancedNotification:
             except Exception:
                 pass
 
+
 # ---------------------------------------------------------------------
 # TEXT CACHE (CORE LOGIC)
 # ---------------------------------------------------------------------
 class TextCache:
     def __init__(self):
-        self.cache = ""                # Current text in memory
-        self.previous_raw = ""         # Last raw text that was pasted
+        self.cache = ""  # Current text in memory
+        self.previous_raw = ""  # Last raw text that was pasted
         self.last_unformatted_text = ""
         self.last_formatted_text = ""
         self.last_format_used = None
@@ -352,12 +362,12 @@ class TextCache:
         self.lock = threading.Lock()
 
         self.notification = EnhancedNotification(format_callback=self.format_and_paste)
-        
+
         self.api_key = CONFIG["gemini_api_key"] or os.environ.get("GEMINI_API_KEY", "")
 
     def add_text(self, text):
         """
-        Add recognized speech to the text cache. 
+        Add recognized speech to the text cache.
         **Important**: We remove the check that blocks new text if is_pasting or is_formatting.
         """
         with self.lock:
@@ -374,7 +384,9 @@ class TextCache:
         """
         print("[TextCache] Hotkey triggered: ctrl+` (raw paste)")
         with self.lock:
-            text_to_paste = self.cache.strip() if self.cache.strip() else self.previous_raw
+            text_to_paste = (
+                self.cache.strip() if self.cache.strip() else self.previous_raw
+            )
 
             if not text_to_paste:
                 print("[TextCache] Nothing to paste (empty cache + no previous raw).")
@@ -396,9 +408,9 @@ class TextCache:
                 # Actually paste
                 pyperclip.copy(text_to_paste)
                 time.sleep(0.1)
-                pyautogui.keyDown('ctrl')
-                pyautogui.press('v')
-                pyautogui.keyUp('ctrl')
+                pyautogui.keyDown("ctrl")
+                pyautogui.press("v")
+                pyautogui.keyUp("ctrl")
 
                 play_sound("paste_raw")
                 self.notification.update_status("Text pasted! Cache cleared.")
@@ -413,7 +425,7 @@ class TextCache:
 
     def format_and_paste(self, text=None, format_type=None):
         """
-        Format the text using Gemini (if needed) and then paste. 
+        Format the text using Gemini (if needed) and then paste.
         If user spams alt+`, we only re-run LLM if text or format changed.
         """
         print("[TextCache] Hotkey triggered: alt+` (format & paste)")
@@ -455,11 +467,13 @@ class TextCache:
                     self.previous_raw = text_to_format
 
                 # Check if we can reuse a previous format
-                same_unformatted = (text_to_format == self.last_unformatted_text)
-                same_format = (format_type == self.last_format_used)
+                same_unformatted = text_to_format == self.last_unformatted_text
+                same_format = format_type == self.last_format_used
 
                 if same_unformatted and same_format and self.last_formatted_text:
-                    print("[TextCache] Reusing previously formatted text (no new LLM call).")
+                    print(
+                        "[TextCache] Reusing previously formatted text (no new LLM call)."
+                    )
                     formatted_text = self.last_formatted_text
                     self.notification.show_format_result(formatted_text)
                     self._paste_direct(formatted_text, is_formatted=True)
@@ -474,7 +488,9 @@ class TextCache:
                     prompt = CONFIG["formatting_prompts"][format_type] + text_to_format
                     print(f"[TextCache] Formatting with prompt: '{prompt[:70]}...'")
                     formatted_text = generate_gemini(prompt, self.api_key)
-                    print(f"[TextCache] Formatted text (first 50 chars): '{formatted_text[:50]}...'")
+                    print(
+                        f"[TextCache] Formatted text (first 50 chars): '{formatted_text[:50]}...'"
+                    )
 
                     self.last_unformatted_text = text_to_format
                     self.last_format_used = format_type
@@ -498,16 +514,16 @@ class TextCache:
 
     def _paste_direct(self, text, is_formatted):
         """
-        Paste text directly without clearing the cache 
+        Paste text directly without clearing the cache
         (so the user can keep appending if they want).
         """
         try:
             original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
             time.sleep(0.1)
-            pyautogui.keyDown('ctrl')
-            pyautogui.press('v')
-            pyautogui.keyUp('ctrl')
+            pyautogui.keyDown("ctrl")
+            pyautogui.press("v")
+            pyautogui.keyUp("ctrl")
             play_sound("paste_formatted" if is_formatted else "paste_raw")
             print(f"[TextCache] Pasted {'formatted' if is_formatted else 'raw'} text.")
             time.sleep(0.1)
@@ -537,6 +553,7 @@ class TextCache:
     def cleanup(self):
         self.notification.cleanup()
 
+
 # ---------------------------------------------------------------------
 # MAIN APPLICATION LOGIC
 # ---------------------------------------------------------------------
@@ -546,7 +563,8 @@ def setup_hotkeys(text_cache):
     Removed 'suppress=True, timeout=1.0' to avoid losing keystrokes.
     """
     keyboard.add_hotkey("ctrl+`", text_cache.paste_and_clear)
-    keyboard.add_hotkey("alt+`",  lambda: text_cache.format_and_paste())
+    keyboard.add_hotkey("alt+`", lambda: text_cache.format_and_paste())
+
 
 def main():
     print("Enhanced Speech-to-Text with AI Formatting.")
@@ -583,5 +601,6 @@ def main():
         text_cache.cleanup()
         sys.exit(0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

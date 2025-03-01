@@ -2,6 +2,7 @@ import time
 import winsound
 import requests
 
+
 # ---------------------------------------------------------------------
 # HELPER FUNCTIONS
 # ---------------------------------------------------------------------
@@ -16,14 +17,15 @@ def generate_gemini(prompt, api_key, model):
         ],
     }
     response = requests.post(url, json=data, headers=headers, params=params)
-    
+
     if response.status_code != 200:
         raise Exception(f"API request failed: {response.status_code} - {response.text}")
-    
+
     try:
         return response.json()["candidates"][0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError) as e:
         raise ValueError("Unexpected API response format") from e
+
 
 def play_sound(sound_type):
     """Play different sounds based on the action."""

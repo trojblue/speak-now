@@ -6,6 +6,7 @@ from speak_now.gui_notification import EnhancedNotification
 from speak_now.text_cache import TextCache
 from speak_now.hotkey_manager import HotkeyManager
 
+
 # ---------------------------------------------------------------------
 # MAIN APPLICATION CLASS
 # ---------------------------------------------------------------------
@@ -13,12 +14,12 @@ class SpeechTranscriptionApp:
     def __init__(self, config_file="stt_config.toml"):
         # Load configuration
         self.config = load_config(config_file)
-        
+
         # Initialize components
         self.text_cache = TextCache(self.config)
         self.hotkey_manager = HotkeyManager(self.config, self.text_cache)
         self.recorder = None
-        
+
     def start(self):
         """Start the application."""
         print("Enhanced Speech-to-Text with AI Formatting")
@@ -32,28 +33,28 @@ class SpeechTranscriptionApp:
         # Register hotkeys
         if not self.hotkey_manager.register_hotkeys():
             print("[ERROR] Failed to register hotkeys. Try restarting the application.")
-            print("If the problem persists, check if another application is using the same hotkeys.")
+            print(
+                "If the problem persists, check if another application is using the same hotkeys."
+            )
             return False
-        
+
         try:
             # Import STT library here to handle import errors gracefully
             from RealtimeSTT import AudioToTextRecorder
-            
+
             # Initialize the audio recorder
-            self.recorder = AudioToTextRecorder(
-                model=self.config["stt"]["model"]
-            )
+            self.recorder = AudioToTextRecorder(model=self.config["stt"]["model"])
             self.recorder.timeout = self.config["stt"]["timeout"]
-            
+
             # Set recorder reference in hotkey manager
             self.hotkey_manager.set_recorder(self.recorder)
-            
+
             # Play startup sound
             play_sound("startup")
-            
+
             # Start the main loop
             self._run_main_loop()
-            
+
         except ImportError as e:
             print(f"[ERROR] Could not import RealtimeSTT: {e}")
             print("Please make sure the library is installed (pip install RealtimeSTT)")
@@ -63,16 +64,20 @@ class SpeechTranscriptionApp:
             return False
         finally:
             self.cleanup()
-            
+
         return True
-            
+
     def _run_main_loop(self):
         """Run the main application loop."""
         try:
             while True:
                 # Only process audio if recording is enabled
                 if self.text_cache.notification.is_recording_enabled():
-                    self.recorder.text(lambda recognized_text: self.text_cache.add_text(recognized_text))
+                    self.recorder.text(
+                        lambda recognized_text: self.text_cache.add_text(
+                            recognized_text
+                        )
+                    )
                 time.sleep(0.05)
         except KeyboardInterrupt:
             print("\n[Main] Exiting by user request...")
@@ -85,9 +90,9 @@ class SpeechTranscriptionApp:
                 self.recorder.shutdown()
             except Exception as e:
                 print(f"[Error] Failed to shut down recorder: {e}")
-        
+
         # Unregister hotkeys
         self.hotkey_manager.unregister()
-        
+
         # Clean up text cache and notification
         self.text_cache.cleanup()

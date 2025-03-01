@@ -8,36 +8,38 @@ from .utils import generate_gemini
 from .gui_notification import EnhancedNotification
 from .utils import play_sound
 
+
 # ---------------------------------------------------------------------
 # TEXT CACHE (CORE LOGIC)
 # ---------------------------------------------------------------------
 class TextCache:
     def __init__(self, config):
-        self.cache = ""                # Current text in memory
-        self.previous_raw = ""         # Last raw text that was pasted
+        self.cache = ""  # Current text in memory
+        self.previous_raw = ""  # Last raw text that was pasted
         self.last_unformatted_text = ""
         self.last_formatted_text = ""
         self.last_format_used = None
         self.config = config
-        
+
         self.is_pasting = False
         self.is_formatting = False
         self.lock = threading.Lock()
 
         self.notification = EnhancedNotification(
-            format_callback=self.format_and_paste,
-            config=config
+            format_callback=self.format_and_paste, config=config
         )
         self.notification.set_raw_paste_callback(self.paste_and_clear)
-        
-        self.api_key = self.config["api"]["gemini_api_key"] or os.environ.get("GEMINI_API_KEY", "")
+
+        self.api_key = self.config["api"]["gemini_api_key"] or os.environ.get(
+            "GEMINI_API_KEY", ""
+        )
 
     def add_text(self, text):
         """Add recognized speech to the text cache."""
         # Skip if recording is disabled
         if not self.notification.is_recording_enabled():
             return
-            
+
         with self.lock:
             self.cache += text + " "
             print(f"[TextCache] Added to cache: '{text}'")
@@ -50,9 +52,13 @@ class TextCache:
         Paste the current cache, then clear.
         If cache is empty, re-paste previous_raw.
         """
-        print(f"[TextCache] Hotkey triggered: {self.config['hotkeys']['paste_raw']} (raw paste)")
+        print(
+            f"[TextCache] Hotkey triggered: {self.config['hotkeys']['paste_raw']} (raw paste)"
+        )
         with self.lock:
-            text_to_paste = self.cache.strip() if self.cache.strip() else self.previous_raw
+            text_to_paste = (
+                self.cache.strip() if self.cache.strip() else self.previous_raw
+            )
 
             if not text_to_paste:
                 print("[TextCache] Nothing to paste (empty cache + no previous raw).")
@@ -63,7 +69,7 @@ class TextCache:
             self.is_pasting = True
             try:
                 self._update_status()
-                
+
                 # If new text is in the cache, update previous_raw
                 if self.cache.strip():
                     self.previous_raw = text_to_paste
@@ -73,7 +79,7 @@ class TextCache:
 
                 # Actually paste
                 self._perform_paste_operation(text_to_paste)
-                
+
                 play_sound("paste_raw")
                 self.notification.update_status("Text pasted! Cache cleared.")
                 print(f"[TextCache] Pasted raw text: '{text_to_paste}'")
@@ -86,7 +92,9 @@ class TextCache:
         """
         Format the text using Gemini (if needed) and then paste.
         """
-        print(f"[TextCache] Hotkey triggered: {self.config['hotkeys']['paste_formatted']} (format & paste)")
+        print(
+            f"[TextCache] Hotkey triggered: {self.config['hotkeys']['paste_formatted']} (format & paste)"
+        )
         with self.lock:
             # If no text provided, we use what's in the cache:
             text_to_format = text.strip() if text else self.cache.strip()
@@ -131,11 +139,13 @@ class TextCache:
                 self.notification.message_queue.put(("add_history", text_to_format))
 
             # Check if we can reuse a previous format
-            same_unformatted = (text_to_format == self.last_unformatted_text)
-            same_format = (format_type == self.last_format_used)
+            same_unformatted = text_to_format == self.last_unformatted_text
+            same_format = format_type == self.last_format_used
 
             if same_unformatted and same_format and self.last_formatted_text:
-                print("[TextCache] Reusing previously formatted text (no new LLM call).")
+                print(
+                    "[TextCache] Reusing previously formatted text (no new LLM call)."
+                )
                 formatted_text = self.last_formatted_text
                 self.notification.show_format_result(formatted_text)
                 self._paste_direct(formatted_text, is_formatted=True)
@@ -154,21 +164,23 @@ class TextCache:
     def _format_with_api(self, text_to_format, format_type, original_text):
         """Format text using the Gemini API."""
         if not self.api_key:
-            error_msg = "Gemini API key not set! Provide it in config.toml or environment."
+            error_msg = (
+                "Gemini API key not set! Provide it in config.toml or environment."
+            )
             print("[TextCache]", error_msg)
             self.notification.update_status(error_msg)
             return
 
         prompt = self.config["formatting_prompts"][format_type] + text_to_format
         print(f"[TextCache] Formatting with prompt: '{prompt[:70]}...'")
-        
+
         formatted_text = generate_gemini(
-            prompt, 
-            self.api_key, 
-            self.config["api"]["model"]
+            prompt, self.api_key, self.config["api"]["model"]
         )
-        
-        print(f"[TextCache] Formatted text (first 50 chars): '{formatted_text[:50]}...'")
+
+        print(
+            f"[TextCache] Formatted text (first 50 chars): '{formatted_text[:50]}...'"
+        )
 
         self.last_unformatted_text = text_to_format
         self.last_format_used = format_type
@@ -198,9 +210,9 @@ class TextCache:
             original_clipboard = pyperclip.paste()
             pyperclip.copy(text)
             time.sleep(0.1)
-            pyautogui.keyDown('ctrl')
-            pyautogui.press('v')
-            pyautogui.keyUp('ctrl')
+            pyautogui.keyDown("ctrl")
+            pyautogui.press("v")
+            pyautogui.keyUp("ctrl")
             time.sleep(0.1)
             pyperclip.copy(original_clipboard)
         except Exception as e:

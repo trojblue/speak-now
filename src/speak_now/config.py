@@ -5,30 +5,24 @@ import toml
 DEFAULT_CONFIG = {
     "api": {
         "gemini_api_key": "",  # Will also check environment variable
-        "model": "gemini-1.5-flash"
+        "model": "gemini-1.5-flash",
     },
-    "stt": {
-        "model": "large-v2",
-        "timeout": 1.0
-    },
+    "stt": {"model": "large-v2", "timeout": 1.0},
     "hotkeys": {
         "paste_raw": "ctrl+`",
-        "paste_formatted": "alt+`", 
-        "toggle_recording": "ctrl+alt+space"
+        "paste_formatted": "alt+`",
+        "toggle_recording": "ctrl+alt+space",
     },
-    "ui": {
-        "opacity": 0.90,
-        "max_history_items": 10,
-        "default_format": "Concise"
-    },
+    "ui": {"opacity": 0.90, "max_history_items": 10, "default_format": "Concise"},
     "formatting_prompts": {
         "Natural": "Reformat this transcription to sound more natural and fix any grammar issues: ",
         "Formal": "Reformat this transcription into formal, professional language: ",
         "Concise": "Reformat this transcription to be more concise while preserving all important information: ",
         "Catgirl": "Reformat this transcription to sound like a cute catgirl talking: ",
-        "None": ""  # No formatting
-    }
+        "None": "",  # No formatting
+    },
 }
+
 
 def load_config(CONFIG_FILE):
     """Load configuration from file or create default if not exists"""
@@ -45,7 +39,7 @@ def load_config(CONFIG_FILE):
             return merged_config
         else:
             # Save default config for future use
-            with open(CONFIG_FILE, 'w') as f:
+            with open(CONFIG_FILE, "w") as f:
                 toml.dump(DEFAULT_CONFIG, f)
             return DEFAULT_CONFIG
     except Exception as e:
